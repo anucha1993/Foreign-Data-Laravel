@@ -1,0 +1,80 @@
+// ================================================================
+// สร้างลิงก์ติดตามงาน + QR Code จากฝั่ง Zoho CRM
+// Zoho คำนวณลายเซ็นเอง (HMAC) ไม่ต้องเรียก server ตอนสร้างลิงก์
+//
+// ---------- ตั้งค่าครั้งเดียว ----------
+// 1) Org Variables (Setup > Developer Hub > Variables)
+//      tfg_tracking_secret   = ค่าเดียวกับ TRACKING_SECRET ใน .env (ต้องตรงกันทุกตัวอักษร)
+//      tfg_tracking_base_url = https://track.thefirstgoodmangroup.com   (ไม่มี / ท้าย)
+//
+// 2) สร้างฟิลด์ใน Deals (Setup > Modules > Deals > Layout)
+//      Tracking URL  : ประเภท URL   -> API name: Tracking_URL
+//      Tracking QR   : ประเภท URL   -> API name: Tracking_QR
+//
+// 3) เลือกวิธีเรียกใช้ (ทำได้ทั้งสองแบบ)
+//    A. อัตโนมัติ: Setup > Automation > Workflow Rules > Deals
+//       - When: Create or Edit
+//       - Condition: Pipeline = Tracking  AND  Tracking URL is empty
+//       - Action: Function -> tfg_tracking_qr (argument dealId = Deals > Deal Id)
+//    B. ปุ่มกดเอง: Deals > Links and Buttons > New Button
+//       -> ใช้ฟังก์ชัน button.tfg_tracking_link ด้านล่าง
+// ================================================================
+
+
+// ---------- A. ฟังก์ชันสำหรับ Workflow ----------
+void automation.tfg_tracking_qr(String dealId)
+{
+	secret = zoho.crm.getOrgVariable("tfg_tracking_secret");
+	baseUrl = zoho.crm.getOrgVariable("tfg_tracking_base_url");
+	// ลายเซ็น = HMAC-SHA256 แบบ hex 32 ตัวแรก (ต้องตรงกับ src/token.js)
+	sig = zoho.encryption.hmacsha256(secret,"deal:" + dealId,"hex").toLowerCase().subString(0,32);
+	token = dealId + "." + sig;
+	link = baseUrl + "/t/" + token;
+	qrUrl = baseUrl + "/qr/" + token + ".png";
+
+	update = Map();
+	update.put("Tracking_URL",link);
+	update.put("Tracking_QR",qrUrl);
+	zoho.crm.updateRecord("Deals",dealId.toLong(),update);
+
+	// แนบรูป QR เป็นไฟล์ใน Attachments ของ Deal
+	// (ใช้ได้เมื่อ server deploy ขึ้นโดเมนจริงแล้ว — localhost Zoho มองไม่เห็น)
+	try
+	{
+		qrFile = invokeurl
+		[
+			url :qrUrl + "?size=600"
+			type :GET
+		];
+		qrFile.setFileName("QR-Tracking-" + dealId + ".png");
+		zoho.crm.attachFile("Deals",dealId.toLong(),qrFile);
+	}
+	catch (e)
+	{
+		info "attach QR failed: " + e;
+	}
+}
+
+
+// ---------- B. ฟังก์ชันสำหรับปุ่มในหน้า Deal ----------
+string button.tfg_tracking_link(String dealId)
+{
+	secret = zoho.crm.getOrgVariable("tfg_tracking_secret");
+	baseUrl = zoho.crm.getOrgVariable("tfg_tracking_base_url");
+	sig = zoho.encryption.hmacsha256(secret,"deal:" + dealId,"hex").toLowerCase().subString(0,32);
+	token = dealId + "." + sig;
+	link = baseUrl + "/t/" + token;
+	qrUrl = baseUrl + "/qr/" + token + ".png";
+	update = Map();
+	update.put("Tracking_URL",link);
+	update.put("Tracking_QR",qrUrl);
+	zoho.crm.updateRecord("Deals",dealId.toLong(),update);
+	return "สร้างลิงก์แล้ว (บันทึกในฟิลด์ Tracking URL / Tracking QR)\n" + link;
+}
+
+
+// ----------------------------------------------------------------
+// ใช้ใน Email Template / Mail Merge ได้เลย:
+//   <img src="${Deals.Tracking QR}" width="200" alt="QR ติดตามงาน">
+//   <a href="${Deals.Tracking URL}">คลิกเพื่อติดตามสถานะงาน</a>
+// ----------------------------------------------------------------
