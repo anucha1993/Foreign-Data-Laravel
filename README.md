@@ -117,7 +117,7 @@ Production: PHP 8.3+ (ext: intl, curl, mbstring), ชี้ web root ไปท�
 app/Services/ZohoAuth.php        refresh/แคช access token (cache lock กัน refresh ซ้อน)
 app/Services/ZohoCrm.php         เรียก CRM API + retry เมื่อ 401
 app/Services/ForeignData.php     ล็อกอิน (พาสปอร์ต + รหัสผ่านจากเลขบัตร), ดึง record, ตรวจสิทธิ์และดาวน์โหลดเอกสาร WorkDrive
-app/Support/ForeignProfile.php   whitelist ฟิลด์/หมวด, คำนวณวันหมดอายุ, จัดรูปแบบวันที่ (พ.ศ./ค.ศ.)
+app/Support/ForeignProfile.php   whitelist ฟิลด์/หมวด, คำนวณวันหมดอายุ, จัดรูปแบบวันที่ (ค.ศ. ทุกภาษา)
 app/Http/Controllers/Foreign/    AuthController, ProfileController
 resources/views/foreign/         login, profile, message (+ components/layout)
 app/Services/GoogleTranslate.php Google Cloud Translation (batch + แคช + กัน placeholder)

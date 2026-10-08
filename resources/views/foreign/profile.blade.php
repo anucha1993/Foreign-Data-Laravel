@@ -39,9 +39,9 @@
         </div>
       </div>
       <dl class="mini">
-        @if($p['foreignId'])<div><dt>{{ __('รหัสแรงงาน') }}</dt><dd>{{ $p['foreignId'] }}</dd></div>@endif
         @if($p['staffId'])<div><dt>{{ __('รหัสพนักงาน') }}</dt><dd>{{ $p['staffId'] }}</dd></div>@endif
         @if($p['passport'])<div><dt>Passport</dt><dd>{{ $p['passport'] }}</dd></div>@endif
+        @if($p['birthday'])<div><dt>{{ __('วันเกิด') }}</dt><dd>{{ $p['birthday'] }}@if($p['age']) <span class="age">({{ $p['age'] }})</span>@endif</dd></div>@endif
         @if($p['employer'])<div><dt>{{ __('นายจ้าง') }}</dt><dd>{{ $p['employer'] }}</dd></div>@endif
       </dl>
     </section>

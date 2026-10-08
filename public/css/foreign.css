@@ -474,3 +474,4 @@ select.input{appearance:auto}
 .translate-box .translated-field{margin:0}
 .translate-box .translated-field textarea{background:var(--brand-soft);border-color:transparent}
 .bubble .tr.sent{color:var(--accent-ink)}
+.mini .age{font-weight:500;color:var(--muted)}

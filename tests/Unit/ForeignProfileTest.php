@@ -49,7 +49,7 @@ class ForeignProfileTest extends TestCase
 
         $passport = $p['cards'][0];
         $this->assertSame('MA1234567', $passport['number']);
-        $this->assertSame('15 ต.ค. 2569', $passport['expiry']);
+        $this->assertSame('15 ต.ค. 2026', $passport['expiry']);
         $this->assertSame('ใช้งานได้', $passport['crmStatus']); // Active -> ไทย
     }
 
@@ -72,6 +72,15 @@ class ForeignProfileTest extends TestCase
         $this->assertSame([true, false], array_column($p['documents'], 'available'));
     }
 
+    public function test_profile_card_shows_birthday_with_age(): void
+    {
+        $p = ForeignProfile::build(ForeignRecord::make(), [], 30, new DateTimeImmutable('2026-10-01'));
+        $this->assertSame(['14 มี.ค. 1995', '31 ปี'], [$p['birthday'], $p['age']]);
+
+        $hidden = ForeignProfile::build(ForeignRecord::make(), ['Birthday']);
+        $this->assertSame(['', null], [$hidden['birthday'], $hidden['age']]);
+    }
+
     public function test_staff_id_shown_only_when_present(): void
     {
         $this->assertSame('EMP-001', ForeignProfile::build(ForeignRecord::make(['Employer_Staff_ID' => ' EMP-001 ']))['staffId']);
@@ -79,8 +88,8 @@ class ForeignProfileTest extends TestCase
         $this->assertSame('', ForeignProfile::build(ForeignRecord::make(['Employer_Staff_ID' => 'EMP-001']), ['Employer_Staff_ID'])['staffId']);
     }
 
-    public function test_thai_buddhist_date(): void
+    public function test_thai_date_uses_gregorian_year(): void
     {
-        $this->assertSame('14 มี.ค. 2538', ForeignProfile::date('1995-03-14'));
+        $this->assertSame('14 มี.ค. 1995', ForeignProfile::date('1995-03-14')); // ค.ศ. ไม่ใช่ พ.ศ.
     }
 }

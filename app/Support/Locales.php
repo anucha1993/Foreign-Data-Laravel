@@ -13,7 +13,7 @@ class Locales
 {
     /** code => [ชื่อภาษา, รหัส Google, ICU locale, รูปแบบวันที่, ฟอนต์ Google Fonts (null = ใช้ฟอนต์หลัก)] */
     public const SUPPORTED = [
-        'th' => ['ไทย', 'th', 'th_TH@calendar=buddhist', 'd MMM y', null],
+        'th' => ['ไทย', 'th', 'th_TH@calendar=gregorian', 'd MMM y', null], // ใช้ ค.ศ. ทุกภาษา (ไม่ใช้ พ.ศ.)
         'en' => ['English', 'en', 'en_US', 'd MMM y', null],
         'my' => ['မြန်မာ', 'my', 'my_MM@numbers=latn', 'd MMM y', 'Noto Sans Myanmar'],
         'km' => ['ខ្មែរ', 'km', 'km_KH', 'd MMM y', 'Noto Sans Khmer'],

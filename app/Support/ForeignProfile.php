@@ -243,7 +243,6 @@ class ForeignProfile
         ])));
 
         return [
-            'foreignId' => $r['Name'] ?? '',
             'name' => $name ?: ($r['Full_Name_Labour'] ?? ''),
             'nameTh' => $r['field4'] ?? '',
             'employer' => Locales::company((string) ($r['Account_Name']['name'] ?? '')),
@@ -251,6 +250,8 @@ class ForeignProfile
             'nationality' => self::format($r['Nationality'] ?? null, 'pick'),
             'passport' => $r['Passport_ID'] ?? '',
             'staffId' => isset($hidden['Employer_Staff_ID']) ? '' : self::format($r['Employer_Staff_ID'] ?? null, 'text'),
+            'birthday' => isset($hidden['Birthday']) ? '' : self::format($r['Birthday'] ?? null, 'date'),
+            'age' => isset($hidden['Birthday']) ? null : $r['_age'],
             'hasPhoto' => ! empty($r['Record_Image']) || ForeignData::photoDocument($r) !== null,
             'initials' => strtoupper(mb_substr($r['First_Name'] ?? '', 0, 1).mb_substr($r['Last_Name'] ?? '', 0, 1)),
             'cards' => $cards,
